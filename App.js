@@ -50,6 +50,11 @@ export default function Stopwatch() {
 
               if (!alertShownRef.current) {
                 alertShownRef.current = true;
+
+                // Vibrate the device
+                Vibration.vibrate([500, 200, 500]); // pattern: vibrate 500ms, pause 200ms, vibrate 500ms
+
+                // Show alert
                 Alert.alert("⏰ Time's Up!", "Your countdown has finished.");
               }
 
@@ -76,6 +81,7 @@ export default function Stopwatch() {
     setTimeElapsed(0);
     setCountdownTarget(null);
     alertShownRef.current = false; // reset alert flag
+    Vibration.cancel(); // stop vibration if ongoing
   }
 
   function setTimer() {
@@ -83,6 +89,7 @@ export default function Stopwatch() {
 
     // Hide the keyboard immediately
     Keyboard.dismiss();
+
     if (!isNaN(seconds) && seconds > 0) {
       setCountdownTarget(seconds * 1000);
       setTimeElapsed(0);
@@ -116,20 +123,19 @@ export default function Stopwatch() {
           placeholderTextColor="#aaa"
           value={inputSeconds}
           onChangeText={setInputSeconds}
-          editable={!isRunning}
+          editable={!isRunning} // disable typing while running
         />
         <Pressable
-  style={[
-    styles.btn,
-    styles.set,
-    isRunning ? styles.disabledBtn : null  // apply disabled style
-  ]}
-  onPress={setTimer}
-  disabled={isRunning} // ← disable the button while running
->
-  <Text style={styles.btnText}>Set Timer</Text>
-</Pressable>
-
+          style={[
+            styles.btn,
+            styles.set,
+            isRunning ? styles.disabledBtn : null, // gray out while running
+          ]}
+          onPress={setTimer}
+          disabled={isRunning} // prevent pressing while running
+        >
+          <Text style={styles.btnText}>Set Timer</Text>
+        </Pressable>
       </View>
 
       {/* Buttons */}
@@ -192,10 +198,9 @@ const styles = StyleSheet.create({
     gap: 12,
   },
   disabledBtn: {
-  backgroundColor: "#555", // gray out button
-  opacity: 0.6,            // make it look disabled
-},
-
+    backgroundColor: "#555", // gray out button
+    opacity: 0.6,
+  },
   btn: {
     paddingVertical: 12,
     paddingHorizontal: 20,
